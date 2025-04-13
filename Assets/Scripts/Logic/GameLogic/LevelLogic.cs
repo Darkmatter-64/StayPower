@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using MyGameplay.GameData;
 using GridMovement;
+using System.Runtime.InteropServices.ComTypes;
 
 namespace MyGameplay.Logic
 {
@@ -22,18 +23,23 @@ namespace MyGameplay.Logic
 		}*/
 
 
-		protected int curLevelId = 0;
+		protected int curLevelId = 0; // Global variable
+		protected Dictionary<int, string> currentLevelName; // Hash map
 
-		//public void LoadNextGameLevel()
-		//{
-		//	if (curLevelId == nextLevelId)
-		//		return;
-		//	...
-		//}
+		// Set up hash map for currentLevelName
+		public void setup()
+		{
+            for (int lvl = 1; lvl <= 6; lvl++)
+            {
+                currentLevelName[lvl] = "Level" + lvl;
+
+            }
+        }
 
 		//public void LoadNextGameLevel(int nextLevelId)
 		public void SetNextGameLevel(int nextLevelId)
 		{
+			setup(); // initiate hash map
 			if (curLevelId == nextLevelId)
 				return;
 
@@ -43,14 +49,16 @@ namespace MyGameplay.Logic
 		}
 		public void SetNextGameLevelForce(int nextLevelId)
 		{
-			UnloadCurrentLevel();
+            setup(); // initiate hash map
+            UnloadCurrentLevel();
 			curLevelId = nextLevelId;
 			LoadCurrentLevel();
 		}
 
 		public void RestartGameLevel()
 		{
-			UnloadCurrentLevel();
+            setup(); // initiate hash map
+            UnloadCurrentLevel();
 			LoadCurrentLevel();
 		}
 
@@ -92,10 +100,10 @@ namespace MyGameplay.Logic
 			return GetLevelTitleName(levelId);
 		}
 #else
-		protected string MakeContainerName(int levelId)
-		{
-			return "Level" + levelId;
-		}
+		//protected string MakeContainerName(int levelId)
+		//{
+		//	return "Level" + levelId;
+		//}
 #endif
 
 
@@ -121,7 +129,9 @@ namespace MyGameplay.Logic
 			if (curLevelId <= 0)
 				return;
 
-			var containerName = MakeContainerName(curLevelId);
+
+
+			var containerName = currentLevelName[curLevelId]; // Using hash map
 
 			//LevelRangeManager.Inst.SetRangeName(MakeRangeName(curLevelId), true);
 			LevelRangeManager.Inst.SetRange(GridGameMap.Inst.GetLevelRange(containerName), true);
